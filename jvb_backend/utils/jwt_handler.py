@@ -1,4 +1,5 @@
 import os
+import datetime
 from dotenv import load_dotenv
 import time
 import jwt
@@ -59,8 +60,14 @@ def decode_token(token: str) -> str:
     
 def decode_refresh_token(token: str) -> dict:
     try:
-        decoded = jwt.decode(token, REFRESH_SECRET_KEY, algorithms=[ALGORITHM])
-        return decoded
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        exp = payload.get("exp")
+        if exp and datetime.utcfromtimestamp(exp) < datetime.utcnow():
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Refresh token expired"
+            )
+        return payload
     except jwt.ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
