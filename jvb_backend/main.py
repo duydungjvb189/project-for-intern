@@ -1,6 +1,5 @@
 from fastapi import FastAPI
-from jvb_backend.routers import auth_route, item_route
-from jvb_backend.routers import user_route
+from routers import auth_route, item_route, user_route
 
 app = FastAPI()
 

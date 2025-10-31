@@ -4,6 +4,8 @@ sqlalchemy
 pydantic
 pydantic[email]
 passlib[bcrypt]
+passlib[argon2]
+argon2-cffi
 pyjwt
 python-dotenv
 redis
