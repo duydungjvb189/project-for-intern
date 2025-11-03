@@ -3,6 +3,7 @@ from datetime import datetime
 from utils.config import redis_client
 from repositories.user_repository import UserRepository
 
+# Retrieve a single user by their ID.
 def get_user_by_id(db, user_id: int):
     user_repo = UserRepository(db)
 
@@ -12,6 +13,7 @@ def get_user_by_id(db, user_id: int):
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
+# Retrieve all users from the database.
 def get_all_users_service(db):
     user_repo = UserRepository(db)
 
@@ -19,6 +21,7 @@ def get_all_users_service(db):
     users = user_repo.get_all_users()
     return users
 
+# Calculate how long a user has been offline based on Redis data.
 def get_offline_duration(user_id: int):
     offline_since = redis_client.get(f"user:{user_id}:offline_since")
 
@@ -32,10 +35,10 @@ def get_offline_duration(user_id: int):
 
     return f"{minutes} phút trước"
 
+# Get the current online/offline status of a user from Redis.
 def get_user_status(user_id: int):
     status = redis_client.get(f"user:{user_id}:is_online")
 
-    # Nếu redis trả về bytes thì decode, còn nếu là str thì giữ nguyên
     if isinstance(status, bytes):
         status = status.decode()
 

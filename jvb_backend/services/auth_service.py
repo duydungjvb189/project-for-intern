@@ -7,6 +7,7 @@ from utils.config import redis_client
 from utils.jwt_handler import create_access_token, create_refresh_token
 from utils.password_hash import hash_password, verify_password
 
+# Register a new user in the system.
 def register_user_service(db, user_data: UserCreate):
     user_repo = UserRepository(db)
 
@@ -32,10 +33,10 @@ def register_user_service(db, user_data: UserCreate):
 
     return { "message": "User registered successfully" }
 
+# Authenticate a user and generate access/refresh tokens.
 def login_user_service(user_data: UserLogin, db):
     user_repo = UserRepository(db)
 
-    # Lấy user theo username
     user = user_repo.get_by_username(user_data.username)
 
     if not user or not verify_password(user_data.password, user.password_hash):
@@ -47,10 +48,8 @@ def login_user_service(user_data: UserLogin, db):
     access_token = create_access_token(user.id, user.username)
     refresh_token = create_refresh_token(user.id, user.username)
 
-    # Nếu đăng nhập thành công sẽ bắt đầu lưu trạng thái online
     now = datetime.utcnow().timestamp()
 
-    # Đánh dấu online
     redis_client.set(f"user:{user.id}:is_online", 1)
     redis_client.set(f"user:{user.id}:last_login", now)
     
@@ -65,6 +64,7 @@ def login_user_service(user_data: UserLogin, db):
         }
     }
 
+# Generate a new access token using a valid refresh token.
 def refresh_token_service(refresh_token: str):
     from utils.jwt_handler import decode_refresh_token, create_access_token
 
@@ -83,6 +83,7 @@ def refresh_token_service(refresh_token: str):
 
     return { "access_token": new_access_token, "token_type": "bearer" }
 
+# Log out a user and revoke their current token.
 def logout_user_service(token: int, exp: int, user_id: int):
     ttl = exp - int(datetime.utcnow().timestamp())
     

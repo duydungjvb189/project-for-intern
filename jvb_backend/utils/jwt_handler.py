@@ -14,6 +14,7 @@ ALGORITHM = os.getenv("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60))
 REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", 7))
 
+# Generate a short-lived access token for the authenticated user.
 def create_access_token(user_id: str, username: str) -> str:
     payload = {
         "sub": str(user_id),
@@ -24,6 +25,7 @@ def create_access_token(user_id: str, username: str) -> str:
 
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
+# Generate a long-lived refresh token to renew access tokens.
 def create_refresh_token(user_id: str, username: str) -> str:
     payload = {
         "sub": str(user_id),
@@ -34,6 +36,7 @@ def create_refresh_token(user_id: str, username: str) -> str:
 
     return jwt.encode(payload, REFRESH_SECRET_KEY, algorithm=ALGORITHM)
 
+# Decode and validate an access token.
 def decode_token(token: str) -> str:
     try:
         # Check blacklist
@@ -57,7 +60,8 @@ def decode_token(token: str) -> str:
             detail="Invalid token",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
+# Decode and validate a refresh token.    
 def decode_refresh_token(token: str) -> dict:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
