@@ -33,6 +33,7 @@ def login_user(user_data: UserLogin, db: Session = Depends(get_db)):
 @router.post("/token/refresh", response_model=RefreshTokenData)
 def refresh_token(data: RefreshTokenRequest):
     token = data.refresh_token
+    
     return refresh_token_service(token)
 
 @router.post("/logout", response_model=dict)
